@@ -102,81 +102,82 @@ html, body, [class*="css"] {
     color: #F4F7FA !important;
 }
 
-/* ── Hide Streamlit chrome ── */
+/* ── Hide Streamlit chrome — eliminate ALL top gap ── */
 #MainMenu, footer { visibility: hidden; }
-header[data-testid="stHeader"]     { display: none !important; }
-.stDeployButton                    { display: none !important; }
-[data-testid="stToolbar"]          { display: none !important; }
-[data-testid="stDecoration"]       { display: none !important; }
-[data-testid="stStatusWidget"]     { display: none !important; }
 
-/* ── Main content padding ── */
+/* Keep the header element in the DOM so the sidebar collapse/expand button
+   still renders when the sidebar is closed — just make it invisible/zero-height */
+header[data-testid="stHeader"] {
+    background: transparent !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;   /* lets the sidebar toggle poke through */
+}
+
+.stDeployButton { display: none !important; }
+[data-testid="stToolbar"]    { display: none !important; }
+[data-testid="stDecoration"] { display: none !important; }
+[data-testid="stStatusWidget"] { display: none !important; }
+
+/* ── Sidebar collapse / expand button — always visible & on top ──
+   Covers all Streamlit versions:
+     ≥ 1.38  →  stSidebarCollapseButton
+     1.35-37 →  stSidebarCollapsedControl
+     older   →  collapsedControl
+── */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 999999 !important;
+    position: fixed !important;
+    top: 12px !important;
+    left: 12px !important;
+}
+[data-testid="stSidebarCollapseButton"] button,
+[data-testid="stSidebarCollapsedControl"] button,
+[data-testid="collapsedControl"] button {
+    background: #141F2B !important;
+    border: 1px solid #263442 !important;
+    border-radius: 8px !important;
+    color: #00E6A0 !important;
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5) !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+[data-testid="stSidebarCollapseButton"] button:hover,
+[data-testid="stSidebarCollapsedControl"] button:hover,
+[data-testid="collapsedControl"] button:hover {
+    border-color: rgba(0,230,160,0.4) !important;
+    box-shadow: 0 4px 16px rgba(0,230,160,0.15) !important;
+}
+/* Keep the SVG arrow icon visible in all states */
+[data-testid="stSidebarCollapseButton"] svg,
+[data-testid="stSidebarCollapsedControl"] svg,
+[data-testid="collapsedControl"] svg {
+    fill: #00E6A0 !important;
+    stroke: #00E6A0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* ── Kill Streamlit's default top padding on main ── */
+.main > div:first-child { padding-top: 0 !important; }
+section.main > div { padding-top: 0 !important; }
+div[class*="appview-container"] { padding-top: 0 !important; }
+
+/* ── Main content padding — tight, no top gap ── */
 .main .block-container {
     padding: 1rem 2rem 3rem 2rem !important;
     max-width: 1440px !important;
-}
-
-/* ════════════════════════════════════════════════
-   SIDEBAR SMOOTH SLIDE TOGGLE — pure CSS, no reload
-   Uses a hidden checkbox + CSS sibling selectors.
-   The toggle button is always fixed top-left.
-════════════════════════════════════════════════ */
-
-/* Hide the real checkbox visually */
-#pv-sidebar-toggle {
-    display: none !important;
-}
-
-/* The visible toggle button label */
-label[for="pv-sidebar-toggle"] {
-    position: fixed;
-    top: 14px;
-    left: 14px;
-    z-index: 9999999;
-    width: 2.4rem;
-    height: 2.4rem;
-    background: #141F2B;
-    border: 1.5px solid #3a5068;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.6);
-    transition: background 0.2s, border-color 0.2s;
-    user-select: none;
-}
-label[for="pv-sidebar-toggle"]:hover {
-    background: rgba(0,230,160,0.12);
-    border-color: #00E6A0;
-}
-
-/* Arrow icon — ◀ when open, ▶ when closed */
-label[for="pv-sidebar-toggle"]::after {
-    content: "◀";
-    color: #00E6A0;
-    font-size: 0.95rem;
-    line-height: 1;
-    transition: transform 0.3s ease;
-}
-#pv-sidebar-toggle:checked ~ label[for="pv-sidebar-toggle"]::after {
-    content: "▶";
-}
-
-/* Slide the sidebar out when checkbox is checked */
-#pv-sidebar-toggle:checked ~ [data-testid="stSidebar"],
-#pv-sidebar-toggle:checked ~ * [data-testid="stSidebar"],
-#pv-sidebar-toggle:checked ~ div [data-testid="stSidebar"] {
-    transform: translateX(-110%) !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-/* Smooth transition on the sidebar itself */
-[data-testid="stSidebar"] {
-    transition: transform 0.3s ease, opacity 0.3s ease !important;
-    transform: translateX(0%) !important;
-    opacity: 1 !important;
+    margin-top: 0 !important;
 }
 
 /* ────────────────────────────────────────────────
@@ -187,6 +188,68 @@ label[for="pv-sidebar-toggle"]::after {
     border-right: 1px solid #263442 !important;
     min-width: 260px !important;
 }
+
+/* ── Sidebar collapse button (the arrow inside the open sidebar) ──
+   Must be explicitly shown; Streamlit renders it as the first child
+   of the sidebar div. We pin it top-right of the sidebar. ── */
+[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"],
+[data-testid="stSidebar"] [data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    left: auto !important;
+    z-index: 999999 !important;
+}
+[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button,
+[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"] button,
+[data-testid="stSidebar"] [data-testid="collapsedControl"] button {
+    background: rgba(20,31,43,0.9) !important;
+    border: 1px solid #263442 !important;
+    border-radius: 8px !important;
+    color: #00E6A0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4) !important;
+    transition: border-color 0.2s, background 0.2s !important;
+    padding: 0 !important;
+}
+[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button:hover,
+[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"] button:hover,
+[data-testid="stSidebar"] [data-testid="collapsedControl"] button:hover {
+    background: rgba(0,230,160,0.12) !important;
+    border-color: rgba(0,230,160,0.4) !important;
+}
+[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] svg,
+[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"] svg,
+[data-testid="stSidebar"] [data-testid="collapsedControl"] svg {
+    fill: #00E6A0 !important;
+    stroke: #00E6A0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* ── Collapsed-state re-open button (outside the sidebar, fixed to viewport) ── */
+[data-testid="stSidebarCollapseButton"]:not([data-testid="stSidebar"] *),
+[data-testid="stSidebarCollapsedControl"]:not([data-testid="stSidebar"] *),
+[data-testid="collapsedControl"]:not([data-testid="stSidebar"] *) {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    top: 12px !important;
+    left: 12px !important;
+    z-index: 999999 !important;
+}
+
+/* Don't zero out sidebar top padding — it hides the collapse button */
+[data-testid="stSidebar"] .block-container { padding-top: 0 !important; }
 
 /* ── Hide ONLY the radio group "nav" label — not all widget labels ── */
 [data-testid="stSidebar"] [data-testid="stRadio"] > label {
@@ -208,7 +271,7 @@ label[for="pv-sidebar-toggle"]::after {
     background: linear-gradient(160deg, #0D1E2C 0%, #111E2B 100%);
     border-bottom: 1px solid #1E3040;
     padding: 22px 20px 18px;
-    margin-top: 0;
+    margin-top: 48px;   /* clear the collapse arrow button */
     margin-bottom: 4px;
 }
 .pv-logo {
@@ -963,7 +1026,7 @@ span[data-baseweb="tag"] {
     .pos-card-icon { font-size: 1.4rem !important; }
     [data-testid="stPlotlyChart"] { border-radius: 10px !important; }
     [data-testid="stSidebar"] { min-width: 220px !important; }
-    .pv-brand    { padding: 14px !important; margin-top: 0 !important; }
+    .pv-brand    { padding: 14px !important; margin-top: 44px !important; }
     .pv-app-name { font-size: 0.95rem !important; }
     [data-testid="stDataFrame"] { border-radius: 10px !important; }
     .pv-section-header { margin: 18px 0 12px !important; }
@@ -2030,14 +2093,6 @@ def render_table(df):
 # =============================================================================
 def main():
     inject_css()
-
-    # ── Pure-CSS sidebar toggle — inject checkbox + label once, no rerun ──────
-    # The checkbox state is tracked by the browser; CSS handles show/hide
-    # with a smooth slide transition. Zero Python reruns.
-    st.markdown("""
-<input type="checkbox" id="pv-sidebar-toggle" />
-<label for="pv-sidebar-toggle" title="Toggle filter panel"></label>
-""", unsafe_allow_html=True)
 
     # Ensure CSV exists
     if not os.path.exists(CSV_PATH):
