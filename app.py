@@ -105,27 +105,8 @@ html, body, [class*="css"] {
 /* ── Hide Streamlit chrome ── */
 #MainMenu, footer { visibility: hidden; }
 
-/* Make header transparent — keep it in DOM so the native sidebar
-   collapse/expand button (which lives inside it) stays functional */
-header[data-testid="stHeader"] {
-    background: transparent !important;
-    box-shadow: none !important;
-    height: 0 !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-}
-
-/* Hide every child of the header except the sidebar toggle button */
-header[data-testid="stHeader"] > * { visibility: hidden !important; }
-
-/* Force the native toggle button and all its children to be fully visible
-   in BOTH states: open (inside sidebar) and collapsed (floats on page) */
-[data-testid="stSidebarCollapseButton"],
-[data-testid="stSidebarCollapseButton"] * {
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-}
+/* Do NOT touch header[data-testid="stHeader"] at all —
+   the native sidebar collapse/expand button lives there and must stay intact */
 
 .stDeployButton                         { display: none !important; }
 [data-testid="stToolbar"]               { display: none !important; }
