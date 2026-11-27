@@ -104,14 +104,49 @@ html, body, [class*="css"] {
 
 /* ── Hide Streamlit chrome — eliminate ALL top gap ── */
 #MainMenu, footer { visibility: hidden; }
+
+/* Keep the header element in the DOM so the sidebar collapse/expand button
+   still renders when the sidebar is closed — just make it invisible/zero-height */
 header[data-testid="stHeader"] {
-    display: none !important;
+    background: transparent !important;
     height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;   /* lets the sidebar toggle poke through */
 }
+
 .stDeployButton { display: none !important; }
 [data-testid="stToolbar"]    { display: none !important; }
 [data-testid="stDecoration"] { display: none !important; }
 [data-testid="stStatusWidget"] { display: none !important; }
+
+/* ── Sidebar collapse/expand arrow — always visible & on top ── */
+[data-testid="stSidebarCollapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 999999 !important;
+    top: 12px !important;
+    left: 12px !important;
+    position: fixed !important;
+}
+[data-testid="stSidebarCollapsedControl"] button {
+    background: #141F2B !important;
+    border: 1px solid #263442 !important;
+    border-radius: 8px !important;
+    color: #00E6A0 !important;
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5) !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+[data-testid="stSidebarCollapsedControl"] button:hover {
+    border-color: rgba(0,230,160,0.4) !important;
+    box-shadow: 0 4px 16px rgba(0,230,160,0.15) !important;
+}
 
 /* ── Kill Streamlit's default top padding on main ── */
 .main > div:first-child { padding-top: 0 !important; }
