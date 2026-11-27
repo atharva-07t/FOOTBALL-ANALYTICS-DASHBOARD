@@ -489,8 +489,7 @@ div[class*="appview-container"] { padding-top: 0 !important; }
     border-color: rgba(0,230,160,0.25) !important;
 }
 /* Expander header row */
-[data-testid="stSidebar"] [data-testid="stExpander"] summary,
-[data-testid="stSidebar"] [data-testid="stExpander"] [data-testid="stExpanderToggleIcon"] {
+[data-testid="stSidebar"] [data-testid="stExpander"] summary {
     padding: 9px 14px !important;
 }
 /* Expander header text */
@@ -501,17 +500,11 @@ div[class*="appview-container"] { padding-top: 0 !important; }
     color: #C8D6E0 !important;
     letter-spacing: 0.01em !important;
 }
-/* Arrow / chevron icon */
-[data-testid="stSidebar"] [data-testid="stExpander"] svg {
-    color: #4E6478 !important;
-    width: 14px !important;
-    height: 14px !important;
-    transition: color 0.2s !important;
+/* Hide the duplicate/non-functioning native Streamlit expander arrow icon */
+[data-testid="stSidebar"] [data-testid="stExpander"] [data-testid="stExpanderToggleIcon"] {
+    display: none !important;
 }
-[data-testid="stSidebar"] [data-testid="stExpander"]:hover svg {
-    color: #00E6A0 !important;
-}
-/* Open state — accent border top */
+/* Open state — accent border */
 [data-testid="stSidebar"] [data-testid="stExpander"][open],
 [data-testid="stSidebar"] details[open] {
     border-color: rgba(0,230,160,0.3) !important;
@@ -519,10 +512,6 @@ div[class*="appview-container"] { padding-top: 0 !important; }
 }
 [data-testid="stSidebar"] [data-testid="stExpander"][open] summary p,
 [data-testid="stSidebar"] details[open] summary p {
-    color: #00E6A0 !important;
-}
-[data-testid="stSidebar"] [data-testid="stExpander"][open] svg,
-[data-testid="stSidebar"] details[open] svg {
     color: #00E6A0 !important;
 }
 /* Inner content padding */
