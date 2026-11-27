@@ -116,30 +116,67 @@ header[data-testid="stHeader"]     { display: none !important; }
     max-width: 1440px !important;
 }
 
-/* ── Sidebar show button — fixed to top-left when sidebar is hidden ── */
-div[data-testid="stButton"][key="show_sidebar"] > button,
-div[data-testid="stButton"][key="show_sidebar"] > button:focus {
-    position: fixed !important;
-    top: 14px !important;
-    left: 14px !important;
-    z-index: 9999999 !important;
-    width: 2.5rem !important;
-    height: 2.5rem !important;
-    padding: 0 !important;
-    background: #141F2B !important;
-    border: 1.5px solid #3a5068 !important;
-    border-radius: 8px !important;
-    color: #00E6A0 !important;
-    font-size: 1.1rem !important;
-    cursor: pointer !important;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.7) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+/* ════════════════════════════════════════════════
+   SIDEBAR SMOOTH SLIDE TOGGLE — pure CSS, no reload
+   Uses a hidden checkbox + CSS sibling selectors.
+   The toggle button is always fixed top-left.
+════════════════════════════════════════════════ */
+
+/* Hide the real checkbox visually */
+#pv-sidebar-toggle {
+    display: none !important;
 }
-div[data-testid="stButton"][key="show_sidebar"] > button:hover {
-    background: rgba(0,230,160,0.12) !important;
-    border-color: #00E6A0 !important;
+
+/* The visible toggle button label */
+label[for="pv-sidebar-toggle"] {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 9999999;
+    width: 2.4rem;
+    height: 2.4rem;
+    background: #141F2B;
+    border: 1.5px solid #3a5068;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.6);
+    transition: background 0.2s, border-color 0.2s;
+    user-select: none;
+}
+label[for="pv-sidebar-toggle"]:hover {
+    background: rgba(0,230,160,0.12);
+    border-color: #00E6A0;
+}
+
+/* Arrow icon — ◀ when open, ▶ when closed */
+label[for="pv-sidebar-toggle"]::after {
+    content: "◀";
+    color: #00E6A0;
+    font-size: 0.95rem;
+    line-height: 1;
+    transition: transform 0.3s ease;
+}
+#pv-sidebar-toggle:checked ~ label[for="pv-sidebar-toggle"]::after {
+    content: "▶";
+}
+
+/* Slide the sidebar out when checkbox is checked */
+#pv-sidebar-toggle:checked ~ [data-testid="stSidebar"],
+#pv-sidebar-toggle:checked ~ * [data-testid="stSidebar"],
+#pv-sidebar-toggle:checked ~ div [data-testid="stSidebar"] {
+    transform: translateX(-110%) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Smooth transition on the sidebar itself */
+[data-testid="stSidebar"] {
+    transition: transform 0.3s ease, opacity 0.3s ease !important;
+    transform: translateX(0%) !important;
+    opacity: 1 !important;
 }
 
 /* ────────────────────────────────────────────────
@@ -164,25 +201,6 @@ div[data-testid="stButton"][key="show_sidebar"] > button:hover {
     height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
-}
-
-/* ── Hide/Show sidebar button styling ── */
-[data-testid="stSidebar"] [data-testid="stButton"]:first-child > button {
-    width: 100% !important;
-    background: rgba(0,230,160,0.06) !important;
-    border: 1px solid rgba(0,230,160,0.2) !important;
-    border-radius: 8px !important;
-    color: #00E6A0 !important;
-    font-size: 0.8rem !important;
-    font-weight: 600 !important;
-    padding: 6px 12px !important;
-    margin: 8px 10px 4px 10px !important;
-    cursor: pointer !important;
-    transition: all 0.2s !important;
-}
-[data-testid="stSidebar"] [data-testid="stButton"]:first-child > button:hover {
-    background: rgba(0,230,160,0.14) !important;
-    border-color: #00E6A0 !important;
 }
 
 /* sidebar brand block */
@@ -1174,12 +1192,6 @@ def load_data(filepath=None):
 def render_sidebar(df):
     """Render sidebar. Returns (filtered_df, page_name)."""
 
-    # ── Hide sidebar button — sits at top of sidebar ──────────────────────────
-    with st.sidebar:
-        if st.button("◀  Hide filters", key="hide_sidebar"):
-            st.session_state.sidebar_open = False
-            st.rerun()
-
     # Brand block
     st.sidebar.markdown("""
 <div class="pv-brand">
@@ -2019,19 +2031,13 @@ def render_table(df):
 def main():
     inject_css()
 
-    # ── Sidebar toggle state ──────────────────────────────────────────────────
-    if "sidebar_open" not in st.session_state:
-        st.session_state.sidebar_open = True
-
-    # ── When sidebar is CLOSED: show a fixed re-open button in main area ──────
-    if not st.session_state.sidebar_open:
-        st.markdown("""
-<style>
-[data-testid="stSidebar"] { display: none !important; }
-</style>""", unsafe_allow_html=True)
-        if st.button("▶", key="show_sidebar", help="Show filters"):
-            st.session_state.sidebar_open = True
-            st.rerun()
+    # ── Pure-CSS sidebar toggle — inject checkbox + label once, no rerun ──────
+    # The checkbox state is tracked by the browser; CSS handles show/hide
+    # with a smooth slide transition. Zero Python reruns.
+    st.markdown("""
+<input type="checkbox" id="pv-sidebar-toggle" />
+<label for="pv-sidebar-toggle" title="Toggle filter panel"></label>
+""", unsafe_allow_html=True)
 
     # Ensure CSV exists
     if not os.path.exists(CSV_PATH):
