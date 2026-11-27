@@ -104,7 +104,26 @@ html, body, [class*="css"] {
 
 /* ── Hide Streamlit chrome ── */
 #MainMenu, footer { visibility: hidden; }
-header[data-testid="stHeader"] { visibility: hidden; }
+
+/* Hide the header background/content but NOT its children —
+   the re-open button lives inside this header when sidebar is collapsed */
+header[data-testid="stHeader"] {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+header[data-testid="stHeader"]::before,
+header[data-testid="stHeader"]::after {
+    display: none !important;
+}
+
+/* Hide everything inside the header EXCEPT the sidebar toggle button */
+header[data-testid="stHeader"] > * {
+    visibility: hidden !important;
+}
+header[data-testid="stHeader"] [data-testid="stSidebarCollapseButton"] {
+    visibility: visible !important;
+}
+
 .stDeployButton              { display: none !important; }
 [data-testid="stToolbar"]    { display: none !important; }
 [data-testid="stDecoration"] { display: none !important; }
