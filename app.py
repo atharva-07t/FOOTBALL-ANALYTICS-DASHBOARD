@@ -104,39 +104,45 @@ html, body, [class*="css"] {
 
 /* ── Hide Streamlit chrome ── */
 #MainMenu, footer { visibility: hidden; }
-
-/* Hide the header visually but keep its children interactive.
-   The re-open button is a child of this header when sidebar is collapsed. */
-header[data-testid="stHeader"] {
-    background: transparent !important;
-    box-shadow: none !important;
-}
-
-/* Hide ALL content inside the header… */
-header[data-testid="stHeader"] > * {
-    visibility: hidden !important;
-}
-
-/* …but force the sidebar toggle and every element inside it to be visible */
-header[data-testid="stHeader"] [data-testid="stSidebarCollapseButton"],
-header[data-testid="stHeader"] [data-testid="stSidebarCollapseButton"] *,
-header[data-testid="stHeader"] [data-testid="collapsedControl"],
-header[data-testid="stHeader"] [data-testid="collapsedControl"] * {
-    visibility: visible !important;
-    opacity: 1 !important;
-    display: flex !important;
-    pointer-events: auto !important;
-}
-
-.stDeployButton              { display: none !important; }
-[data-testid="stToolbar"]    { display: none !important; }
-[data-testid="stDecoration"] { display: none !important; }
-[data-testid="stStatusWidget"]{ display: none !important; }
+header[data-testid="stHeader"]          { display: none !important; }
+.stDeployButton                         { display: none !important; }
+[data-testid="stToolbar"]               { display: none !important; }
+[data-testid="stDecoration"]            { display: none !important; }
+[data-testid="stStatusWidget"]          { display: none !important; }
 
 /* ── Kill Streamlit's default top padding on main ── */
 .main > div:first-child { padding-top: 0 !important; }
 section.main > div { padding-top: 0 !important; }
 div[class*="appview-container"] { padding-top: 0 !important; }
+
+/* ── Sidebar toggle button — always fixed top-left ── */
+#pv-toggle-wrap {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 9999999;
+}
+#pv-toggle-wrap button {
+    background: #141F2B;
+    border: 1.5px solid #3a5068;
+    border-radius: 8px;
+    color: #00E6A0;
+    font-size: 1rem;
+    line-height: 1;
+    width: 2.25rem;
+    height: 2.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.6);
+    transition: border-color 0.2s, background 0.2s;
+    padding: 0;
+}
+#pv-toggle-wrap button:hover {
+    background: rgba(0,230,160,0.12);
+    border-color: #00E6A0;
+}
 
 /* ── Main content padding ── */
 .main .block-container {
@@ -2039,6 +2045,31 @@ def render_table(df):
 # =============================================================================
 def main():
     inject_css()
+
+    # ── Sidebar toggle via query param (survives rerun, no layout columns) ────
+    params = st.query_params
+    sidebar_open = params.get("sidebar", "1") != "0"
+
+    # Inject the toggle button as a plain HTML form — no Streamlit column needed
+    next_state = "0" if sidebar_open else "1"
+    icon = "◀" if sidebar_open else "▶"
+    tooltip = "Hide filters" if sidebar_open else "Show filters"
+    st.markdown(f"""
+<div id="pv-toggle-wrap">
+  <form method="get" action="">
+    <input type="hidden" name="sidebar" value="{next_state}" />
+    <button type="submit" title="{tooltip}">{icon}</button>
+  </form>
+</div>
+""", unsafe_allow_html=True)
+
+    # Hide the sidebar via CSS when toggled off
+    if not sidebar_open:
+        st.markdown("""
+<style>
+[data-testid="stSidebar"] { display: none !important; }
+</style>
+""", unsafe_allow_html=True)
 
     # Ensure CSV exists
     if not os.path.exists(CSV_PATH):
