@@ -1,5 +1,11 @@
 # ⚽ Football Player Performance Analytics Dashboard
 
+🚀 **Live Demo:** [Open Football Analytics Dashboard](https://football-analytics-dashboard-cc2254on86hwk6ev5gat9x.streamlit.app/)
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://football-analytics-dashboard-cc2254on86hwk6ev5gat9x.streamlit.app/)
+
+---
+
 An interactive, portfolio-quality football (soccer) analytics dashboard built using **Python, Streamlit, Pandas, NumPy, and Plotly**.
 
 Analyze player performance, compare statistics, explore interactive visualizations, and download filtered datasets through a modern football-themed dashboard.
