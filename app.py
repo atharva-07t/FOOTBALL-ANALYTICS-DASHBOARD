@@ -113,16 +113,46 @@ html, body, [class*="css"] {
 [data-testid="stDecoration"]            { display: none !important; }
 [data-testid="stStatusWidget"]          { display: none !important; }
 
-/* ── Kill Streamlit's default top padding on main ── */
-.main > div:first-child { padding-top: 0 !important; }
-section.main > div { padding-top: 0 !important; }
-div[class*="appview-container"] { padding-top: 0 !important; }
-
-/* ── Main content padding ── */
+/* ── Main content padding — preserve top space for the sidebar re-open arrow ── */
 .main .block-container {
     padding: 1rem 2rem 3rem 2rem !important;
     max-width: 1440px !important;
-    margin-top: 0 !important;
+}
+
+/* ── Sidebar collapse/expand button — force always visible & on top ──
+   When sidebar is OPEN  : button is inside [data-testid="stSidebar"]
+   When sidebar is CLOSED: Streamlit moves it to a fixed overlay position
+   We style it once here and it applies in both locations.
+── */
+[data-testid="stSidebarCollapseButton"] {
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 999999 !important;
+    pointer-events: auto !important;
+}
+[data-testid="stSidebarCollapseButton"] button {
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    background: #141F2B !important;
+    border: 1px solid #3a5068 !important;
+    border-radius: 8px !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.6) !important;
+}
+[data-testid="stSidebarCollapseButton"] button:hover {
+    background: rgba(0,230,160,0.12) !important;
+    border-color: #00E6A0 !important;
+}
+[data-testid="stSidebarCollapseButton"] svg,
+[data-testid="stSidebarCollapseButton"] svg * {
+    visibility: visible !important;
+    opacity: 1 !important;
+    fill: #00E6A0 !important;
+    stroke: #00E6A0 !important;
 }
 
 /* ────────────────────────────────────────────────
@@ -132,49 +162,6 @@ div[class*="appview-container"] { padding-top: 0 !important; }
     background: linear-gradient(180deg, #0C1520 0%, #101923 60%, #0C1520 100%) !important;
     border-right: 1px solid #263442 !important;
     min-width: 260px !important;
-}
-
-/* ── Sidebar collapse/expand toggle button ──────────────────────────
-   Streamlit renders this button in TWO places:
-   1. INSIDE the open sidebar (to close it)   → data-testid="stSidebarCollapseButton"
-   2. OUTSIDE as a fixed overlay (to re-open) → same test-id but outside stSidebar
-
-   We force BOTH to always be visible.
-── */
-[data-testid="stSidebarCollapseButton"] {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 999999 !important;
-}
-[data-testid="stSidebarCollapseButton"] button {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    background: #141F2B !important;
-    border: 1px solid #3a5068 !important;
-    border-radius: 8px !important;
-    width: 2.25rem !important;
-    height: 2.25rem !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-    cursor: pointer !important;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.6) !important;
-    transition: border-color 0.2s, background 0.2s !important;
-}
-[data-testid="stSidebarCollapseButton"] button:hover {
-    background: rgba(0,230,160,0.1) !important;
-    border-color: #00E6A0 !important;
-}
-[data-testid="stSidebarCollapseButton"] svg {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    fill: #00E6A0 !important;
-    stroke: #00E6A0 !important;
-    width: 1.1rem !important;
-    height: 1.1rem !important;
 }
 
 /* ── Hide ONLY the radio group "nav" label — not all widget labels ── */
