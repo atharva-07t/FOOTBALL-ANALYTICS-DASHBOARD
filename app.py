@@ -188,12 +188,68 @@ div[class*="appview-container"] { padding-top: 0 !important; }
     border-right: 1px solid #263442 !important;
     min-width: 260px !important;
 }
-[data-testid="stSidebar"] > div:first-child {
-    padding-top: 0 !important;
+
+/* ── Sidebar collapse button (the arrow inside the open sidebar) ──
+   Must be explicitly shown; Streamlit renders it as the first child
+   of the sidebar div. We pin it top-right of the sidebar. ── */
+[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"],
+[data-testid="stSidebar"] [data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    left: auto !important;
+    z-index: 999999 !important;
 }
-/* Kill the stSidebar inner top gap */
+[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button,
+[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"] button,
+[data-testid="stSidebar"] [data-testid="collapsedControl"] button {
+    background: rgba(20,31,43,0.9) !important;
+    border: 1px solid #263442 !important;
+    border-radius: 8px !important;
+    color: #00E6A0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4) !important;
+    transition: border-color 0.2s, background 0.2s !important;
+    padding: 0 !important;
+}
+[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button:hover,
+[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"] button:hover,
+[data-testid="stSidebar"] [data-testid="collapsedControl"] button:hover {
+    background: rgba(0,230,160,0.12) !important;
+    border-color: rgba(0,230,160,0.4) !important;
+}
+[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] svg,
+[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"] svg,
+[data-testid="stSidebar"] [data-testid="collapsedControl"] svg {
+    fill: #00E6A0 !important;
+    stroke: #00E6A0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* ── Collapsed-state re-open button (outside the sidebar, fixed to viewport) ── */
+[data-testid="stSidebarCollapseButton"]:not([data-testid="stSidebar"] *),
+[data-testid="stSidebarCollapsedControl"]:not([data-testid="stSidebar"] *),
+[data-testid="collapsedControl"]:not([data-testid="stSidebar"] *) {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    top: 12px !important;
+    left: 12px !important;
+    z-index: 999999 !important;
+}
+
+/* Don't zero out sidebar top padding — it hides the collapse button */
 [data-testid="stSidebar"] .block-container { padding-top: 0 !important; }
-[data-testid="stSidebar"] > div { padding-top: 0 !important; }
 
 /* ── Hide ONLY the radio group "nav" label — not all widget labels ── */
 [data-testid="stSidebar"] [data-testid="stRadio"] > label {
@@ -215,6 +271,7 @@ div[class*="appview-container"] { padding-top: 0 !important; }
     background: linear-gradient(160deg, #0D1E2C 0%, #111E2B 100%);
     border-bottom: 1px solid #1E3040;
     padding: 22px 20px 18px;
+    margin-top: 48px;   /* clear the collapse arrow button */
     margin-bottom: 4px;
 }
 .pv-logo {
@@ -969,7 +1026,7 @@ span[data-baseweb="tag"] {
     .pos-card-icon { font-size: 1.4rem !important; }
     [data-testid="stPlotlyChart"] { border-radius: 10px !important; }
     [data-testid="stSidebar"] { min-width: 220px !important; }
-    .pv-brand    { padding: 14px !important; }
+    .pv-brand    { padding: 14px !important; margin-top: 44px !important; }
     .pv-app-name { font-size: 0.95rem !important; }
     [data-testid="stDataFrame"] { border-radius: 10px !important; }
     .pv-section-header { margin: 18px 0 12px !important; }
