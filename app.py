@@ -120,17 +120,26 @@ header[data-testid="stHeader"] {
 [data-testid="stDecoration"] { display: none !important; }
 [data-testid="stStatusWidget"] { display: none !important; }
 
-/* ── Sidebar collapse/expand arrow — always visible & on top ── */
-[data-testid="stSidebarCollapsedControl"] {
+/* ── Sidebar collapse / expand button — always visible & on top ──
+   Covers all Streamlit versions:
+     ≥ 1.38  →  stSidebarCollapseButton
+     1.35-37 →  stSidebarCollapsedControl
+     older   →  collapsedControl
+── */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="collapsedControl"] {
     display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;
     z-index: 999999 !important;
+    position: fixed !important;
     top: 12px !important;
     left: 12px !important;
-    position: fixed !important;
 }
-[data-testid="stSidebarCollapsedControl"] button {
+[data-testid="stSidebarCollapseButton"] button,
+[data-testid="stSidebarCollapsedControl"] button,
+[data-testid="collapsedControl"] button {
     background: #141F2B !important;
     border: 1px solid #263442 !important;
     border-radius: 8px !important;
@@ -143,9 +152,20 @@ header[data-testid="stHeader"] {
     box-shadow: 0 2px 12px rgba(0,0,0,0.5) !important;
     transition: border-color 0.2s, box-shadow 0.2s !important;
 }
-[data-testid="stSidebarCollapsedControl"] button:hover {
+[data-testid="stSidebarCollapseButton"] button:hover,
+[data-testid="stSidebarCollapsedControl"] button:hover,
+[data-testid="collapsedControl"] button:hover {
     border-color: rgba(0,230,160,0.4) !important;
     box-shadow: 0 4px 16px rgba(0,230,160,0.15) !important;
+}
+/* Keep the SVG arrow icon visible in all states */
+[data-testid="stSidebarCollapseButton"] svg,
+[data-testid="stSidebarCollapsedControl"] svg,
+[data-testid="collapsedControl"] svg {
+    fill: #00E6A0 !important;
+    stroke: #00E6A0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* ── Kill Streamlit's default top padding on main ── */
