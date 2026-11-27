@@ -104,55 +104,42 @@ html, body, [class*="css"] {
 
 /* ── Hide Streamlit chrome ── */
 #MainMenu, footer { visibility: hidden; }
+header[data-testid="stHeader"]     { display: none !important; }
+.stDeployButton                    { display: none !important; }
+[data-testid="stToolbar"]          { display: none !important; }
+[data-testid="stDecoration"]       { display: none !important; }
+[data-testid="stStatusWidget"]     { display: none !important; }
 
-/* Do NOT touch header[data-testid="stHeader"] at all —
-   the native sidebar collapse/expand button lives there and must stay intact */
-
-.stDeployButton                         { display: none !important; }
-[data-testid="stToolbar"]               { display: none !important; }
-[data-testid="stDecoration"]            { display: none !important; }
-[data-testid="stStatusWidget"]          { display: none !important; }
-
-/* ── Main content padding — preserve top space for the sidebar re-open arrow ── */
+/* ── Main content padding ── */
 .main .block-container {
     padding: 1rem 2rem 3rem 2rem !important;
     max-width: 1440px !important;
 }
 
-/* ── Sidebar collapse/expand button — force always visible & on top ──
-   When sidebar is OPEN  : button is inside [data-testid="stSidebar"]
-   When sidebar is CLOSED: Streamlit moves it to a fixed overlay position
-   We style it once here and it applies in both locations.
-── */
-[data-testid="stSidebarCollapseButton"] {
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 999999 !important;
-    pointer-events: auto !important;
-}
-[data-testid="stSidebarCollapseButton"] button {
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    background: #141F2B !important;
-    border: 1px solid #3a5068 !important;
-    border-radius: 8px !important;
-    width: 2.25rem !important;
-    height: 2.25rem !important;
+/* ── Sidebar show button — fixed to top-left when sidebar is hidden ── */
+div[data-testid="stButton"][key="show_sidebar"] > button,
+div[data-testid="stButton"][key="show_sidebar"] > button:focus {
+    position: fixed !important;
+    top: 14px !important;
+    left: 14px !important;
+    z-index: 9999999 !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
     padding: 0 !important;
+    background: #141F2B !important;
+    border: 1.5px solid #3a5068 !important;
+    border-radius: 8px !important;
+    color: #00E6A0 !important;
+    font-size: 1.1rem !important;
     cursor: pointer !important;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.6) !important;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.7) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
-[data-testid="stSidebarCollapseButton"] button:hover {
+div[data-testid="stButton"][key="show_sidebar"] > button:hover {
     background: rgba(0,230,160,0.12) !important;
     border-color: #00E6A0 !important;
-}
-[data-testid="stSidebarCollapseButton"] svg,
-[data-testid="stSidebarCollapseButton"] svg * {
-    visibility: visible !important;
-    opacity: 1 !important;
-    fill: #00E6A0 !important;
-    stroke: #00E6A0 !important;
 }
 
 /* ────────────────────────────────────────────────
@@ -177,6 +164,25 @@ html, body, [class*="css"] {
     height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
+}
+
+/* ── Hide/Show sidebar button styling ── */
+[data-testid="stSidebar"] [data-testid="stButton"]:first-child > button {
+    width: 100% !important;
+    background: rgba(0,230,160,0.06) !important;
+    border: 1px solid rgba(0,230,160,0.2) !important;
+    border-radius: 8px !important;
+    color: #00E6A0 !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    padding: 6px 12px !important;
+    margin: 8px 10px 4px 10px !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+}
+[data-testid="stSidebar"] [data-testid="stButton"]:first-child > button:hover {
+    background: rgba(0,230,160,0.14) !important;
+    border-color: #00E6A0 !important;
 }
 
 /* sidebar brand block */
@@ -1168,6 +1174,12 @@ def load_data(filepath=None):
 def render_sidebar(df):
     """Render sidebar. Returns (filtered_df, page_name)."""
 
+    # ── Hide sidebar button — sits at top of sidebar ──────────────────────────
+    with st.sidebar:
+        if st.button("◀  Hide filters", key="hide_sidebar"):
+            st.session_state.sidebar_open = False
+            st.rerun()
+
     # Brand block
     st.sidebar.markdown("""
 <div class="pv-brand">
@@ -2006,6 +2018,20 @@ def render_table(df):
 # =============================================================================
 def main():
     inject_css()
+
+    # ── Sidebar toggle state ──────────────────────────────────────────────────
+    if "sidebar_open" not in st.session_state:
+        st.session_state.sidebar_open = True
+
+    # ── When sidebar is CLOSED: show a fixed re-open button in main area ──────
+    if not st.session_state.sidebar_open:
+        st.markdown("""
+<style>
+[data-testid="stSidebar"] { display: none !important; }
+</style>""", unsafe_allow_html=True)
+        if st.button("▶", key="show_sidebar", help="Show filters"):
+            st.session_state.sidebar_open = True
+            st.rerun()
 
     # Ensure CSV exists
     if not os.path.exists(CSV_PATH):
