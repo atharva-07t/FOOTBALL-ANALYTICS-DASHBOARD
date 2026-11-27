@@ -476,6 +476,60 @@ div[class*="appview-container"] { padding-top: 0 !important; }
     background: linear-gradient(90deg, #0A6B4A, #00E6A0) !important;
 }
 
+/* ── Collapsible filter expanders ── */
+[data-testid="stSidebar"] [data-testid="stExpander"] {
+    background: rgba(20,31,43,0.6) !important;
+    border: 1px solid #1E3040 !important;
+    border-radius: 10px !important;
+    margin: 3px 10px !important;
+    overflow: hidden !important;
+    transition: border-color 0.2s !important;
+}
+[data-testid="stSidebar"] [data-testid="stExpander"]:hover {
+    border-color: rgba(0,230,160,0.25) !important;
+}
+/* Expander header row */
+[data-testid="stSidebar"] [data-testid="stExpander"] summary,
+[data-testid="stSidebar"] [data-testid="stExpander"] [data-testid="stExpanderToggleIcon"] {
+    padding: 9px 14px !important;
+}
+/* Expander header text */
+[data-testid="stSidebar"] [data-testid="stExpander"] summary p,
+[data-testid="stSidebar"] [data-testid="stExpander"] summary span {
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    color: #C8D6E0 !important;
+    letter-spacing: 0.01em !important;
+}
+/* Arrow / chevron icon */
+[data-testid="stSidebar"] [data-testid="stExpander"] svg {
+    color: #4E6478 !important;
+    width: 14px !important;
+    height: 14px !important;
+    transition: color 0.2s !important;
+}
+[data-testid="stSidebar"] [data-testid="stExpander"]:hover svg {
+    color: #00E6A0 !important;
+}
+/* Open state — accent border top */
+[data-testid="stSidebar"] [data-testid="stExpander"][open],
+[data-testid="stSidebar"] details[open] {
+    border-color: rgba(0,230,160,0.3) !important;
+    background: rgba(0,230,160,0.04) !important;
+}
+[data-testid="stSidebar"] [data-testid="stExpander"][open] summary p,
+[data-testid="stSidebar"] details[open] summary p {
+    color: #00E6A0 !important;
+}
+[data-testid="stSidebar"] [data-testid="stExpander"][open] svg,
+[data-testid="stSidebar"] details[open] svg {
+    color: #00E6A0 !important;
+}
+/* Inner content padding */
+[data-testid="stSidebar"] [data-testid="stExpander"] > div:last-child {
+    padding: 4px 10px 10px !important;
+}
+
 /* sidebar footer */
 .pv-sidebar-footer {
     font-size: 0.65rem;
@@ -1288,47 +1342,68 @@ def render_sidebar(df):
     # ── Filters ──────────────────────────────────────────────────────────────
     st.sidebar.markdown('<div class="pv-sidebar-section">Filters</div>', unsafe_allow_html=True)
 
-    season_opts = ["All Seasons"] + sorted(df["season"].unique().tolist())
-    sel_season = st.sidebar.selectbox("Season", options=season_opts, index=0)
+    # ── Season filter (collapsible) ───────────────────────────────────────────
+    with st.sidebar.expander("📅  Season", expanded=True):
+        season_opts = ["All Seasons"] + sorted(df["season"].unique().tolist())
+        sel_season = st.selectbox(
+            "Season",
+            options=season_opts,
+            index=0,
+            label_visibility="collapsed",
+        )
 
-    all_teams = sorted(df["team"].unique().tolist())
-    sel_teams = st.sidebar.multiselect("Team", options=all_teams, default=all_teams)
-
-    all_pos = POSITIONS
-    sel_pos = st.sidebar.multiselect("Position", options=all_pos, default=all_pos)
-
-    # Apply season / team / position
+    # Apply season first so Team / Position expanders react to it
     filtered = df.copy()
     if sel_season != "All Seasons":
         filtered = filtered[filtered["season"] == sel_season]
+
+    # ── Team filter (collapsible) ─────────────────────────────────────────────
+    all_teams = sorted(filtered["team"].unique().tolist())
+    with st.sidebar.expander("🏟️  Team", expanded=False):
+        sel_teams = st.multiselect(
+            "Team",
+            options=all_teams,
+            default=all_teams,
+            label_visibility="collapsed",
+        )
+
     if sel_teams:
         filtered = filtered[filtered["team"].isin(sel_teams)]
+
+    # ── Position filter (collapsible) ─────────────────────────────────────────
+    with st.sidebar.expander("🎯  Position", expanded=False):
+        sel_pos = st.multiselect(
+            "Position",
+            options=POSITIONS,
+            default=POSITIONS,
+            label_visibility="collapsed",
+        )
+
     if sel_pos:
         filtered = filtered[filtered["position"].isin(sel_pos)]
 
+    # ── Player filter (collapsible) ───────────────────────────────────────────
     all_players = sorted(filtered["player_name"].unique().tolist())
-    sel_players = st.sidebar.multiselect("Player", options=all_players, default=all_players)
+    with st.sidebar.expander("👤  Player", expanded=False):
+        sel_players = st.multiselect(
+            "Player",
+            options=all_players,
+            default=all_players,
+            label_visibility="collapsed",
+        )
 
+    # ── Appearances filter (collapsible) ──────────────────────────────────────
     max_apps = int(df["appearances"].max()) if not df.empty else 38
-    st.sidebar.markdown("""
-<div style="
-    font-size:0.72rem; font-weight:700; color:#91A0AE;
-    text-transform:uppercase; letter-spacing:0.08em;
-    padding: 10px 0 4px 2px; display:flex; align-items:center; gap:6px;">
-    <span style="color:#00E6A0;">⏱</span> Min. Appearances
-</div>
-<div style="font-size:0.65rem; color:#3E5468; margin-bottom:2px; padding-left:2px;">
-    Filter players with at least this many games played
-</div>
-""", unsafe_allow_html=True)
-    min_apps = st.sidebar.slider(
-        "Min. Appearances",
-        min_value=1,
-        max_value=max_apps,
-        value=1,
-        label_visibility="collapsed",
-        help=f"Slide to filter players who appeared in at least N matches (max: {max_apps})",
-    )
+    with st.sidebar.expander("⏱️  Min. Appearances", expanded=False):
+        st.caption("Show only players with at least this many games played.")
+        min_apps = st.slider(
+            "Min. Appearances",
+            min_value=1,
+            max_value=max_apps,
+            value=1,
+            label_visibility="collapsed",
+            help=f"Slide to filter players who appeared in at least N matches (max: {max_apps})",
+        )
 
     if sel_players:
         filtered = filtered[filtered["player_name"].isin(sel_players)]
@@ -1340,7 +1415,7 @@ def render_sidebar(df):
         active_filters.append(sel_season)
     if len(sel_teams) < len(all_teams):
         active_filters.append(f"{len(sel_teams)} teams")
-    if len(sel_pos) < len(POSITIONS):
+    if sel_pos and len(sel_pos) < len(POSITIONS):
         active_filters.append("+".join(sel_pos))
 
     if active_filters:
