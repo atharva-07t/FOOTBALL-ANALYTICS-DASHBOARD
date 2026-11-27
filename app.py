@@ -2036,6 +2036,63 @@ def render_table(df):
 def main():
     inject_css()
 
+    # ── Sidebar visibility toggle state ───────────────────────────────────────
+    if "sidebar_visible" not in st.session_state:
+        st.session_state.sidebar_visible = True
+
+    # ── Custom toggle button — fixed top-left, always on screen ───────────────
+    # Render BEFORE the sidebar so it always sits on top
+    icon  = "◀" if st.session_state.sidebar_visible else "▶"
+    label = "Hide filters" if st.session_state.sidebar_visible else "Show filters"
+    st.markdown(f"""
+<style>
+/* Fixed toggle button — always visible regardless of sidebar state */
+div[data-testid="stButton"].pv-toggle-btn {{
+    position: fixed !important;
+    top: 14px !important;
+    left: {"272px" if st.session_state.sidebar_visible else "14px"} !important;
+    z-index: 9999999 !important;
+}}
+div[data-testid="stButton"].pv-toggle-btn > button {{
+    background: #141F2B !important;
+    border: 1px solid #3a5068 !important;
+    border-radius: 8px !important;
+    color: #00E6A0 !important;
+    font-size: 0.95rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    padding: 0 !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.6) !important;
+    transition: border-color 0.2s, background 0.2s !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}}
+div[data-testid="stButton"].pv-toggle-btn > button:hover {{
+    background: rgba(0,230,160,0.12) !important;
+    border-color: #00E6A0 !important;
+}}
+</style>
+""", unsafe_allow_html=True)
+
+    # Inject a unique key class so we can target just this button
+    col_toggle = st.columns([0.001, 0.999])[0]   # hairline-width column, invisible
+    with col_toggle:
+        if st.button(icon, key="sidebar_toggle", help=label):
+            st.session_state.sidebar_visible = not st.session_state.sidebar_visible
+            st.rerun()
+
+    # ── Hide the sidebar via CSS when toggled off ──────────────────────────────
+    if not st.session_state.sidebar_visible:
+        st.markdown("""
+<style>
+[data-testid="stSidebar"] { display: none !important; }
+/* shift main content to fill the gap */
+.main .block-container { padding-left: 1rem !important; }
+</style>
+""", unsafe_allow_html=True)
+
     # Ensure CSV exists
     if not os.path.exists(CSV_PATH):
         with st.spinner("⚙️ Generating synthetic dataset..."):
