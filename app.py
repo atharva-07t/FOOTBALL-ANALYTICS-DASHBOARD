@@ -102,78 +102,20 @@ html, body, [class*="css"] {
     color: #F4F7FA !important;
 }
 
-/* ── Hide Streamlit chrome — eliminate ALL top gap ── */
+/* ── Hide Streamlit chrome ── */
 #MainMenu, footer { visibility: hidden; }
-
-/* Keep the header element in the DOM so the sidebar collapse/expand button
-   still renders when the sidebar is closed — just make it invisible/zero-height */
-header[data-testid="stHeader"] {
-    background: transparent !important;
-    height: 0 !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    overflow: visible !important;   /* lets the sidebar toggle poke through */
-}
-
-.stDeployButton { display: none !important; }
+header[data-testid="stHeader"] { visibility: hidden; }
+.stDeployButton              { display: none !important; }
 [data-testid="stToolbar"]    { display: none !important; }
 [data-testid="stDecoration"] { display: none !important; }
-[data-testid="stStatusWidget"] { display: none !important; }
-
-/* ── Sidebar collapse / expand button — always visible & on top ──
-   Covers all Streamlit versions:
-     ≥ 1.38  →  stSidebarCollapseButton
-     1.35-37 →  stSidebarCollapsedControl
-     older   →  collapsedControl
-── */
-[data-testid="stSidebarCollapseButton"],
-[data-testid="stSidebarCollapsedControl"],
-[data-testid="collapsedControl"] {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 999999 !important;
-    position: fixed !important;
-    top: 12px !important;
-    left: 12px !important;
-}
-[data-testid="stSidebarCollapseButton"] button,
-[data-testid="stSidebarCollapsedControl"] button,
-[data-testid="collapsedControl"] button {
-    background: #141F2B !important;
-    border: 1px solid #263442 !important;
-    border-radius: 8px !important;
-    color: #00E6A0 !important;
-    width: 36px !important;
-    height: 36px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.5) !important;
-    transition: border-color 0.2s, box-shadow 0.2s !important;
-}
-[data-testid="stSidebarCollapseButton"] button:hover,
-[data-testid="stSidebarCollapsedControl"] button:hover,
-[data-testid="collapsedControl"] button:hover {
-    border-color: rgba(0,230,160,0.4) !important;
-    box-shadow: 0 4px 16px rgba(0,230,160,0.15) !important;
-}
-/* Keep the SVG arrow icon visible in all states */
-[data-testid="stSidebarCollapseButton"] svg,
-[data-testid="stSidebarCollapsedControl"] svg,
-[data-testid="collapsedControl"] svg {
-    fill: #00E6A0 !important;
-    stroke: #00E6A0 !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
+[data-testid="stStatusWidget"]{ display: none !important; }
 
 /* ── Kill Streamlit's default top padding on main ── */
 .main > div:first-child { padding-top: 0 !important; }
 section.main > div { padding-top: 0 !important; }
 div[class*="appview-container"] { padding-top: 0 !important; }
 
-/* ── Main content padding — tight, no top gap ── */
+/* ── Main content padding ── */
 .main .block-container {
     padding: 1rem 2rem 3rem 2rem !important;
     max-width: 1440px !important;
@@ -189,67 +131,48 @@ div[class*="appview-container"] { padding-top: 0 !important; }
     min-width: 260px !important;
 }
 
-/* ── Sidebar collapse button (the arrow inside the open sidebar) ──
-   Must be explicitly shown; Streamlit renders it as the first child
-   of the sidebar div. We pin it top-right of the sidebar. ── */
-[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"],
-[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"],
-[data-testid="stSidebar"] [data-testid="collapsedControl"] {
+/* ── Sidebar collapse/expand toggle button ──────────────────────────
+   Streamlit renders this button in TWO places:
+   1. INSIDE the open sidebar (to close it)   → data-testid="stSidebarCollapseButton"
+   2. OUTSIDE as a fixed overlay (to re-open) → same test-id but outside stSidebar
+
+   We force BOTH to always be visible.
+── */
+[data-testid="stSidebarCollapseButton"] {
     display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;
-    position: absolute !important;
-    top: 10px !important;
-    right: 10px !important;
-    left: auto !important;
     z-index: 999999 !important;
 }
-[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button,
-[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"] button,
-[data-testid="stSidebar"] [data-testid="collapsedControl"] button {
-    background: rgba(20,31,43,0.9) !important;
-    border: 1px solid #263442 !important;
-    border-radius: 8px !important;
-    color: #00E6A0 !important;
-    width: 32px !important;
-    height: 32px !important;
+[data-testid="stSidebarCollapseButton"] button {
     display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #141F2B !important;
+    border: 1px solid #3a5068 !important;
+    border-radius: 8px !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
     align-items: center !important;
     justify-content: center !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.4) !important;
-    transition: border-color 0.2s, background 0.2s !important;
     padding: 0 !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.6) !important;
+    transition: border-color 0.2s, background 0.2s !important;
 }
-[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button:hover,
-[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"] button:hover,
-[data-testid="stSidebar"] [data-testid="collapsedControl"] button:hover {
-    background: rgba(0,230,160,0.12) !important;
-    border-color: rgba(0,230,160,0.4) !important;
+[data-testid="stSidebarCollapseButton"] button:hover {
+    background: rgba(0,230,160,0.1) !important;
+    border-color: #00E6A0 !important;
 }
-[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] svg,
-[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"] svg,
-[data-testid="stSidebar"] [data-testid="collapsedControl"] svg {
+[data-testid="stSidebarCollapseButton"] svg {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     fill: #00E6A0 !important;
     stroke: #00E6A0 !important;
-    visibility: visible !important;
-    opacity: 1 !important;
+    width: 1.1rem !important;
+    height: 1.1rem !important;
 }
-
-/* ── Collapsed-state re-open button (outside the sidebar, fixed to viewport) ── */
-[data-testid="stSidebarCollapseButton"]:not([data-testid="stSidebar"] *),
-[data-testid="stSidebarCollapsedControl"]:not([data-testid="stSidebar"] *),
-[data-testid="collapsedControl"]:not([data-testid="stSidebar"] *) {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: fixed !important;
-    top: 12px !important;
-    left: 12px !important;
-    z-index: 999999 !important;
-}
-
-/* Don't zero out sidebar top padding — it hides the collapse button */
-[data-testid="stSidebar"] .block-container { padding-top: 0 !important; }
 
 /* ── Hide ONLY the radio group "nav" label — not all widget labels ── */
 [data-testid="stSidebar"] [data-testid="stRadio"] > label {
@@ -271,7 +194,7 @@ div[class*="appview-container"] { padding-top: 0 !important; }
     background: linear-gradient(160deg, #0D1E2C 0%, #111E2B 100%);
     border-bottom: 1px solid #1E3040;
     padding: 22px 20px 18px;
-    margin-top: 48px;   /* clear the collapse arrow button */
+    margin-top: 0;
     margin-bottom: 4px;
 }
 .pv-logo {
@@ -1026,7 +949,7 @@ span[data-baseweb="tag"] {
     .pos-card-icon { font-size: 1.4rem !important; }
     [data-testid="stPlotlyChart"] { border-radius: 10px !important; }
     [data-testid="stSidebar"] { min-width: 220px !important; }
-    .pv-brand    { padding: 14px !important; margin-top: 44px !important; }
+    .pv-brand    { padding: 14px !important; margin-top: 0 !important; }
     .pv-app-name { font-size: 0.95rem !important; }
     [data-testid="stDataFrame"] { border-radius: 10px !important; }
     .pv-section-header { margin: 18px 0 12px !important; }
